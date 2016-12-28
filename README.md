@@ -9,7 +9,7 @@ var portal_dateformat = "dd/mm/yyyy";
 # To call date-validator function
 e.g
 
-
+<pre>
 function validateDate (dateFieldId) {
 
   var dateField = document.getElementById('dateField1');
@@ -23,4 +23,4 @@ function validateDate (dateFieldId) {
   }
   
 }
-
+</pre>
