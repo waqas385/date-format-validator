@@ -7,12 +7,20 @@ Validate date string, on the basis date format variable value.
 var portal_dateformat = "dd/mm/yyyy";
 
 # To call date-validator function
-"
+e.g
+
+
 function validateDate (dateFieldId) {
+
   var dateField = document.getElementById('dateField1');
+  
   if (!dateField.value.isValidDate()) {
+  
     alert('Invalid date entered');
+    
     return false;
+    
   }
+  
 }
-"
+
