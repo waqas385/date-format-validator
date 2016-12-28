@@ -1,34 +1,33 @@
 // Validates that the input string is a valid date formatted as ("mm/dd/yyyy", "dd/mm/yyyy", "dd.mm.yyyy", "yyyy-mm-dd")
 String.prototype.isValidDate = function () {
-  var dateString = this;
-	var dateFormatReg, parts, month, day, year, separator;
-        if (portal_dateformat == undefined || portal_dateformat == null) {
-            portal_dateformat = "mm/dd/yyyy";
-        }
-        
-	switch (portal_dateformat) {
-		case "YYYY-MM-DD":
-		case "yyyy-mm-dd":
-			dateFormatReg = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
-			separator = "-";
-			break;
-		case "DD/MM/YYYY":
-		case "dd/mm/yyyy":
-			dateFormatReg = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-			separator = "/";
-			break;
-		case "DD.MM.YYYY":
-		case "dd.mm.yyyy":
-			dateFormatReg = /^\d{1,2}\.\d{1,2}\.\d{4}$/;
-			separator = ".";
-			break;
-		default:
-			// MM/DD/YYYY
-			// mm/dd/yyyy
-			dateFormatReg = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-			separator = "/";
-			break;
-	}
+  var dateString = this, dateFormatReg, parts, month, day, year, separator;
+  if (portal_dateformat == undefined || portal_dateformat == null) {
+    portal_dateformat = "mm/dd/yyyy";
+  }
+
+  switch (portal_dateformat) {
+	case "YYYY-MM-DD":
+	case "yyyy-mm-dd":
+		dateFormatReg = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
+		separator = "-";
+		break;
+	case "DD/MM/YYYY":
+	case "dd/mm/yyyy":
+		dateFormatReg = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+		separator = "/";
+		break;
+	case "DD.MM.YYYY":
+	case "dd.mm.yyyy":
+		dateFormatReg = /^\d{1,2}\.\d{1,2}\.\d{4}$/;
+		separator = ".";
+		break;
+	default:
+		// MM/DD/YYYY
+		// mm/dd/yyyy
+		dateFormatReg = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+		separator = "/";
+		break;
+  }
 	
 	// First check for the pattern
     if(!dateFormatReg.test(dateString))
