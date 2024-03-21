@@ -1,82 +1,115 @@
-// Validates that the input string is a valid date formatted as ("mm/dd/yyyy", "dd/mm/yyyy", "dd.mm.yyyy", "yyyy-mm-dd")
-String.prototype.isValidDate = function () {
-  var dateString = this, dateFormatReg, parts, month, day, year, separator;
-  if (portal_dateformat == undefined || portal_dateformat == null) {
-    portal_dateformat = "mm/dd/yyyy";
+function getDateFormatRegex(dateFormat) {
+  let dateRegex = '';
+  let dateSeparator = '';
+
+  switch (dateFormat) {
+    case "YYYY-MM-DD":
+    case "yyyy-mm-dd":
+      dateRegex = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
+      dateSeparator = "-";
+      break;
+    case "DD/MM/YYYY":
+    case "dd/mm/yyyy":
+      dateRegex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+      dateSeparator = "/";
+      break;
+    case "DD.MM.YYYY":
+    case "dd.mm.yyyy":
+      dateRegex = /^\d{1,2}\.\d{1,2}\.\d{4}$/;
+      dateSeparator = ".";
+      break;
+    default:
+      // MM/DD/YYYY
+      // mm/dd/yyyy
+      dateRegex = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+      dateSeparator = "/";
+      break;
   }
 
-  switch (portal_dateformat) {
-	case "YYYY-MM-DD":
-	case "yyyy-mm-dd":
-		dateFormatReg = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
-		separator = "-";
-		break;
-	case "DD/MM/YYYY":
-	case "dd/mm/yyyy":
-		dateFormatReg = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-		separator = "/";
-		break;
-	case "DD.MM.YYYY":
-	case "dd.mm.yyyy":
-		dateFormatReg = /^\d{1,2}\.\d{1,2}\.\d{4}$/;
-		separator = ".";
-		break;
-	default:
-		// MM/DD/YYYY
-		// mm/dd/yyyy
-		dateFormatReg = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
-		separator = "/";
-		break;
+  return {
+    dateRegex,
+    dateSeparator
   }
-	
-	// First check for the pattern
-    if(!dateFormatReg.test(dateString))
-        return false;
-	
-    // Parse the date parts to integers
-	switch (separator) {
+}
+
+function parseDateString(dateString, dateSeparator, dateFormat) {
+  let day = '';
+  let month = '';
+  let year = '';
+  let dateArray = [];
+
+  switch (dateSeparator) {
 		case ".":
-			parts = dateString.split(".");
-			day = parseInt(parts[1], 10);
-			month = parseInt(parts[0], 10);
-			year = parseInt(parts[2], 10);
+			dateArray = dateString.split(".");
+			day = parseInt(dateArray[1], 10);
+			month = parseInt(dateArray[0], 10);
+			year = parseInt(dateArray[2], 10);
 	
 			break;
 		case "-":
-			parts = dateString.split("-");
-			day = parseInt(parts[2], 10);
-			month = parseInt(parts[1], 10);
-			year = parseInt(parts[0], 10);
+			dateArray = dateString.split("-");
+			day = parseInt(dateArray[2], 10);
+			month = parseInt(dateArray[1], 10);
+			year = parseInt(dateArray[0], 10);
 	
 			break;
 		default:
-			parts = dateString.split("/");
-			if (portal_dateformat === "DD/MM/YYYY"
-                                || portal_dateformat === "dd/mm/yyyy") {
-                            
-				day = parseInt(parts[0], 10);
-				month = parseInt(parts[1], 10);
-				year = parseInt(parts[2], 10);
+			dateArray = dateString.split("/");
+			if (dateFormat === "DD/MM/YYYY" || dateFormat === "dd/mm/yyyy") {
+				day = parseInt(dateArray[0], 10);
+				month = parseInt(dateArray[1], 10);
+				year = parseInt(dateArray[2], 10);
 			} else {
-				day = parseInt(parts[1], 10);
-				month = parseInt(parts[0], 10);
-				year = parseInt(parts[2], 10);
+				day = parseInt(dateArray[1], 10);
+				month = parseInt(dateArray[0], 10);
+				year = parseInt(dateArray[2], 10);
 			}
 	
 			break;
 	}
-   
 
-    // Check the ranges of month and year
-    if(year < 1000 || year > 3000 || month == 0 || month > 12)
-        return false;
+  return {
+    day,
+    month,
+    year
+  }
+}
 
-    var monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+function monthDaysArray(year) {
+  let monthsDays = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
 
-    // Adjust for leap years
-    if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
-        monthLength[1] = 29;
+  // Adjust for leap years
+  if(year % 400 == 0 || (year % 100 != 0 && year % 4 == 0)) {
+    monthsDays[1] = 29;
+  }
 
-    // Check the range of the day
-    return day > 0 && day <= monthLength[month - 1];
-};
+  return monthsDays;
+}
+ 
+/**
+ * 
+ * @param options object containing dateString, dateFormat
+ */
+export default function isValidDate(options) {
+  let dateFormat = '';
+  if (!options.dateFormat) {
+    dateFormat = 'mm/dd/yyyy';
+  }
+
+  const { dateRegex, dateSeparator } = getDateFormatRegex(dateFormat);
+
+  if (!dateRegex.test(options.dateString)) {
+    return false;
+  }
+
+  const { day, month, year} = parseDateString(options.dateString, dateSeparator, options.dateFormat);
+
+  // month & days range
+  if (year < 1000 || year > 3000 || month == 0 || month > 12) {
+    return false;
+  }
+
+  let monthDays = monthDaysArray(year);
+
+  return day > 0 && day <= monthDays[month - 1];
+}
